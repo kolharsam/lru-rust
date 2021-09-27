@@ -1,4 +1,4 @@
-// Description: This is an implementation of the LRU Cache Eviction Policy
+// This is an implementation of the LRU Cache Eviction Policy
 
 // TODO: Maybe make this a lib? Or just make sure that it's more generic
 
@@ -7,6 +7,7 @@ use std::collections::{HashMap, VecDeque};
 mod lru {
     use super::*;
 
+    // TODO: element type should be generic
     type LinkedNode = (i32, i32);
 
     pub struct LRU {
@@ -31,22 +32,19 @@ mod lru {
                 panic!("Capacity of the cache cannot be 0");
             }
 
-            let new_map: HashMap<i32, i32> = HashMap::new();
-            let new_list: VecDeque<LinkedNode> = VecDeque::new();
-
             LRU {
                 lru_capacity: capacity,
-                lru_map: new_map,
-                lru_list: new_list,
+                lru_map: HashMap::new(),
+                lru_list: VecDeque::new(),
             }
         }
 
         fn get(&mut self, key: i32) -> Option<i32> {
             let found_element = self.lru_map.get(&key);
 
-            if found_element != None {
+            if found_element.is_none() {
                 let mut new_list = self.lru_list.clone();
-                let mut elem_index = 0;
+                let mut elem_index: usize = 0;
                 let mut search_elem = (0, 0);
 
                 for elem in new_list.iter() {
@@ -57,7 +55,7 @@ mod lru {
                     elem_index += 1;
                 }
 
-                new_list.remove(elem_index as usize);
+                new_list.remove(elem_index);
                 new_list.push_front(search_elem);
                 self.lru_list = new_list;
 
@@ -71,7 +69,7 @@ mod lru {
             let mut new_list = self.lru_list.clone();
             let check_res = self.lru_map.get(&key);
 
-            if check_res != None {
+            if !check_res.is_none() {
                 let mut index = 0;
                 for elem in self.lru_list.iter() {
                     if elem.0 == key {
@@ -95,6 +93,7 @@ mod lru {
         }
 
         fn show(&self) {
+            // TODO: probably should be logging here instead of just println
             println!(
                 "This is the current state of cache, with capacity({}):",
                 self.lru_capacity
@@ -109,41 +108,33 @@ mod lru {
         }
 
         fn first(&self) -> Option<&LinkedNode> {
-            let front_elem = self.lru_list.front();
-
-            if front_elem != None {
-                return front_elem;
-            }
-
-            None
+            self.lru_list.front()
         }
 
         fn last(&self) -> Option<&LinkedNode> {
-            let front_elem = self.lru_list.back();
-
-            if front_elem != None {
-                return front_elem;
-            }
-
-            None
+            self.lru_list.back()
         }
     }
 }
 
-// TODO?: figure out the idiomatic way to do this?
-use crate::lru::LRUOperators;
-fn main() {
-    // Simple example to see if everything works, just something to run :P
-    let mut lru = lru::LRU::new(4);
-    lru.put(1, 52);
-    lru.put(2, 35);
-    lru.get(1);
-    lru.show();
-}
+/// Example using this crate
+///
+/// use lru::LRUOperators;
+/// fn main() {
+///     let mut lru = lru::LRU::new(4);
+///     lru.put(1, 52);
+///     lru.put(2, 35);
+///     lru.get(1);
+///     lru.show();
+/// }
+
+fn main() {}
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    use crate::lru;
 
     #[test]
     #[should_panic]
