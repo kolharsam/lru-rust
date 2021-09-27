@@ -1,5 +1,5 @@
 # lru-rust
 
-A simple and dirty of the LRU cache in Rust
+A dirty and straightforward implementation of the LRU algorithm
 
 Use `cargo` to play around with the source!
